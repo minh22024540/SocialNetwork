@@ -1,0 +1,36 @@
+services:
+  neo4j:
+    image: neo4j:5.25
+    container_name: neo4j
+    restart: unless-stopped
+    ports:
+      - "7474:7474"   # Web UI (Neo4j Browser)
+      - "7687:7687"   # Bolt protocol for drivers
+    environment:
+      - NEO4J_AUTH=neo4j/neo4jtest12
+      - NEO4J_dbms_security_auth__minimum__password__length=8
+      - NEO4J_dbms_memory_heap_initial__size=512m
+      - NEO4J_dbms_memory_heap_max__size=1G
+      - NEO4J_dbms_memory_pagecache_size=512m
+      - NEO4J_dbms_default__database=wiki.db
+            # Reduce lockout impact during development
+      - NEO4J_dbms_security_auth__max__failed__attempts=100000
+      - NEO4J_dbms_security_auth__lock__time=3s
+
+      # Enable APOC and file access for import/export
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*
+      - NEO4J_dbms_security_procedures_allowlist=apoc.*
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - neo4j_plugins:/plugins
+      - ./:/import     # mount your project root (where CSVs live)
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
+  neo4j_plugins:
