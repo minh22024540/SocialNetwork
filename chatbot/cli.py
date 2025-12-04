@@ -9,8 +9,15 @@ Supports two modes:
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from typing import Optional
+
+# Add parent directory to path so we can import chatbot modules
+_script_dir = Path(__file__).resolve().parent
+_parent_dir = _script_dir.parent
+if str(_parent_dir) not in sys.path:
+    sys.path.insert(0, str(_parent_dir))
 
 from chatbot.graph_store import GraphStore
 from chatbot.graph_rag import (
