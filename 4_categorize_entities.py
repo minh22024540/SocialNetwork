@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
-"""
-Categorize entities as person or event based on flattened statements.
+"""Categorize entities as person or event based on flattened statements.
 
-Rule (explicit):
+Categorization rules:
 - person if any statement has key == "P31" and value == "Q5" (human)
 - otherwise event
-
-This module exposes functions and an optional minimal runner.
 """
 
 import json

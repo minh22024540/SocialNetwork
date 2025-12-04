@@ -1,11 +1,8 @@
-"""
-GraphRAG utilities for the social network knowledge graph.
+"""GraphRAG utilities for the social network knowledge graph.
 
-This module provides:
-- Formatting of paths + relationships into LLM-friendly text.
-- Prompt builders for GraphRAG-style question answering.
-- Retrieval helpers that, given a free-form question, query Neo4j via
-  `GraphStore` to get relevant multi-hop paths (2–4 hops).
+Formats paths and relationships into LLM-friendly text, builds prompts for
+GraphRAG-style question answering, and retrieves relevant multi-hop paths
+(2–4 hops) from Neo4j via GraphStore for free-form questions.
 """
 
 from __future__ import annotations
@@ -41,14 +38,19 @@ def build_evidence_from_example(example: Dict[str, Any]) -> GraphEvidence:
 
 
 def format_graph_evidence_for_prompt(evidence: GraphEvidence) -> str:
-    """Format a single path + relationships into a compact, LLM-friendly string."""
+    """Format a single path + relationships into a compact, LLM-friendly string.
+    
+    Returns Vietnamese-formatted string for use in Vietnamese prompts.
+    """
     nodes = evidence.path
     rels = evidence.relationships
 
+    # Vietnamese message: "No sufficient information about path in graph"
     if not nodes or not rels:
         return "Không có đủ thông tin về đường đi trong đồ thị."
 
     lines: List[str] = []
+    # Vietnamese: "{hop_count}-hop path in knowledge graph"
     lines.append(f"Đường đi {evidence.hop_count}-hop trong đồ thị tri thức:")
 
     # Node descriptions
@@ -60,6 +62,7 @@ def format_graph_evidence_for_prompt(evidence: GraphEvidence) -> str:
 
     # Relationship descriptions (aligned between consecutive nodes)
     lines.append("")
+    # Vietnamese: "Relationships between consecutive nodes"
     lines.append("Các quan hệ giữa các node liên tiếp:")
     for i, rel in enumerate(rels):
         if i >= len(nodes) - 1:
@@ -71,6 +74,8 @@ def format_graph_evidence_for_prompt(evidence: GraphEvidence) -> str:
         ev = (rel.get("evidence_text") or "").strip()
         src_name = src.get("name", "")
         dst_name = dst.get("name", "")
+        # Vietnamese format: "source --[type, confidence ~X.XX]--> destination"
+        # "độ tin cậy" = confidence, "Bằng chứng" = evidence
         base = f"{src_name} --[{rtype}, độ tin cậy ~{conf:.2f}]--> {dst_name}"
         if ev:
             lines.append(f"- {base}. Bằng chứng: \"{ev}\"")
@@ -115,8 +120,13 @@ def build_chat_prompt_for_question(example: Dict[str, Any]) -> Dict[str, str]:
 
 
 def format_multiple_evidences_for_prompt(evidences: List[GraphEvidence]) -> str:
-    """Format multiple paths as a multi-block graph context string."""
+    """Format multiple paths as a multi-block graph context string.
+    
+    Returns Vietnamese-formatted string for use in Vietnamese prompts.
+    """
     if not evidences:
+        # Vietnamese: "No relevant paths found in knowledge graph for this question.
+        # If information is missing, clearly state that the graph doesn't provide enough data."
         return (
             "Không tìm được đường đi liên quan trong đồ thị tri thức cho câu hỏi này. "
             "Nếu thiếu thông tin, hãy nói rõ rằng đồ thị không cung cấp đủ dữ liệu."
@@ -136,9 +146,22 @@ def build_chat_prompt_for_free_question(
     hop_count: int,
     evidences: List[GraphEvidence],
 ) -> Dict[str, str]:
-    """Build system + user prompts for a free-form question using retrieved paths."""
+    """Build system and user prompts for a free-form question using retrieved paths.
+
+    Args:
+        question_text: Free-form question string from user.
+        q_type: Question type ("true_false", "yes_no", "multiple_choice", or "general").
+        hop_count: Expected number of hops in reasoning path.
+        evidences: List of GraphEvidence objects from path retrieval.
+
+    Returns:
+        Dictionary with "system_prompt" and "user_content" keys for LLM chat API.
+    """
     graph_context = format_multiple_evidences_for_prompt(evidences)
 
+    # Vietnamese system prompt: instructs LLM to answer history questions based on knowledge graph
+    # "Bạn là một trợ lý..." = "You are an assistant..."
+    # "QUAN TRỌNG" = "IMPORTANT"
     system_prompt = (
         "Bạn là một trợ lý trả lời câu hỏi lịch sử dựa trên ĐỒ THỊ TRI THỨC về con người "
         "và sự kiện.\n\n"
@@ -151,18 +174,23 @@ def build_chat_prompt_for_free_question(
         "trên các quan hệ trong đồ thị.\n"
     )
 
-    # Build answer format instructions based on question type
+    # Build answer format instructions in Vietnamese based on question type
     format_instructions = ""
     if q_type == "true_false":
+        # "Answer with one word: 'True' or 'False', then briefly explain"
         format_instructions = "Hãy trả lời bằng một từ: 'Đúng' hoặc 'Sai', sau đó giải thích ngắn gọn.\n"
     elif q_type == "yes_no":
+        # "Answer with one word: 'Yes' or 'No', then briefly explain"
         format_instructions = "Hãy trả lời bằng một từ: 'Có' hoặc 'Không', sau đó giải thích ngắn gọn.\n"
     elif q_type == "multiple_choice":
+        # "Answer with a single letter (A, B, C or D), then briefly explain why that choice is correct"
         format_instructions = "Hãy trả lời bằng một chữ cái duy nhất (A, B, C hoặc D), sau đó giải thích ngắn gọn tại sao lựa chọn đó đúng.\n"
     else:
         # General question - just answer naturally
+        # "Answer naturally and briefly, then explain reasoning based on relationships in graph"
         format_instructions = "Hãy trả lời một cách tự nhiên và ngắn gọn, sau đó giải thích suy luận dựa trên các quan hệ trong đồ thị.\n"
 
+    # Vietnamese user content: "Based on the knowledge graph above, answer the following question in Vietnamese"
     user_content = (
         f"{graph_context}\n\n"
         "Dựa vào đồ thị tri thức ở trên, hãy trả lời câu hỏi sau bằng tiếng Việt:\n"

@@ -303,15 +303,24 @@ def load_page_props_mapping(props_file_path: str) -> dict:
         return {}
 
 
-async def create_full_wiki_entities_from_full_text_async(input_file: str, props_file: str, output_file: str = "wiki_entities_full_from_xml.jsonl"):
-    """
-    Create full WikiEntity objects from wikipedia_full_text.json using page_props.sql.gz for Wikidata IDs.
-    Reads the full text data, looks up Wikidata IDs, fetches Wikidata data, and saves to JSONL.
+async def create_full_wiki_entities_from_full_text_async(
+    input_file: str,
+    props_file: str,
+    output_file: str = "wiki_entities_full_from_xml.jsonl"
+) -> bool:
+    """Create full WikiEntity objects from Wikipedia full text data.
+
+    Reads full text data, looks up Wikidata IDs from page_props.sql.gz,
+    fetches Wikidata data via API, and saves combined entities to JSONL.
 
     Args:
-        input_file: Path to the wikipedia_full_text.json file
-        props_file: Path to the page_props.sql.gz file
-        output_file: Path to the output JSONL file
+        input_file: Path to wikipedia_full_text.json file.
+        props_file: Path to page_props.sql.gz file.
+        output_file: Path to output JSONL file. Defaults to
+            "wiki_entities_full_from_xml.jsonl".
+
+    Returns:
+        True if processing completed successfully, False otherwise.
     """
 
     print("=" * 80)
@@ -441,11 +450,11 @@ async def create_full_wiki_entities_from_full_text_async(input_file: str, props_
 
 
 def main() -> None:
-    """Main function to create full WikiEntity objects.
+    """Create full WikiEntity objects from Wikipedia and Wikidata data.
 
-    Orchestrates the process of enriching Wikipedia entities with Wikidata
-    data by fetching Wikidata properties for each entity via API and
-    combining them into full WikiEntity objects.
+    Enriches Wikipedia entities with Wikidata data by fetching Wikidata
+    properties for each entity via API and combining them into full
+    WikiEntity objects.
     """
     input_file = "wikipedia_full_text.json"
     props_file = "viwiki_data/viwiki-20251020-page_props.sql.gz"

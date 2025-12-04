@@ -361,9 +361,14 @@ def extract_all_templates(text_content):
     return infobox_info
 
 def process_single_page(page_data):
-    """
-    Process a single page and return the result if it matches our criteria.
-    This function is designed to be used with multiprocessing.
+    """Process a single Wikipedia page and return result if it matches criteria.
+
+    Args:
+        page_data: Tuple of (page, text_content) from mwxml parser.
+
+    Returns:
+        Dictionary with page data if it matches patterns, None otherwise.
+        Compatible with multiprocessing.Pool.map().
     """
     page, text_content = page_data
     

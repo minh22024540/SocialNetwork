@@ -1,7 +1,6 @@
-"""
-Generate multi-hop questions from graph paths using OpenAI.
+"""Generate multi-hop questions from graph paths using OpenAI.
 
-This module generates Vietnamese questions (True/False, Yes/No, Multiple Choice)
+Generates Vietnamese questions (True/False, Yes/No, Multiple Choice)
 based on multi-hop paths in the social network graph.
 """
 
@@ -122,12 +121,13 @@ def format_path_for_prompt(path_data: Dict) -> str:
         node_desc = node.get("description") or node.get("summary") or ""
         node_id = node.get("id") or node.get("neo4j_id") or i
 
+        # Format node information with Vietnamese labels (for Vietnamese prompt)
         lines.append(f"Node {i+1}:")
         lines.append(f"- id: {node_id}")
-        lines.append(f"- loại: {node_type}")
-        lines.append(f"- tên: {node_name}")
+        lines.append(f"- loại: {node_type}")  # "loại" = type
+        lines.append(f"- tên: {node_name}")  # "tên" = name
         if node_desc:
-            lines.append(f"- mô tả: {node_desc}")
+            lines.append(f"- mô tả: {node_desc}")  # "mô tả" = description
 
         # Add relationship if available (relationships connect to next node)
         # For path: P1 -> E1 -> P2, relationships are [P1->E1, E1<-P2]
@@ -140,21 +140,22 @@ def format_path_for_prompt(path_data: Dict) -> str:
             # English description of this relationship type from 6_relationship_types.json
             rel_type_description = rel_type_desc.get(rel_type, "")
 
+            # Format edge information with Vietnamese labels (for Vietnamese prompt)
             lines.append(f"Edge {i+1}:")
-            lines.append(f"- từ: Node {i+1}")
-            lines.append(f"- đến: Node {i+2}")
+            lines.append(f"- từ: Node {i+1}")  # "từ" = from
+            lines.append(f"- đến: Node {i+2}")  # "đến" = to
             if rel_type:
-                lines.append(f"- loại quan hệ (type): {rel_type}")
+                lines.append(f"- loại quan hệ (type): {rel_type}")  # "loại quan hệ" = relationship type
             if rel_type_description:
-                lines.append(f"- mô tả loại quan hệ (tiếng Anh): {rel_type_description}")
+                lines.append(f"- mô tả loại quan hệ (tiếng Anh): {rel_type_description}")  # "mô tả loại quan hệ" = relationship type description
             if isinstance(rel_conf, (int, float)):
-                lines.append(f"- độ tin cậy (confidence): {rel_conf:.2f}")
+                lines.append(f"- độ tin cậy (confidence): {rel_conf:.2f}")  # "độ tin cậy" = confidence
             if rel_evidence:
                 # Truncate very long evidence for prompt readability
                 ev = rel_evidence.replace("\n", " ").strip()
                 if len(ev) > 400:
                     ev = ev[:400].rstrip() + "..."
-                lines.append(f"- trích dẫn gốc (evidence_text): \"{ev}\"")
+                lines.append(f"- trích dẫn gốc (evidence_text): \"{ev}\"")  # "trích dẫn gốc" = original citation
 
         lines.append("")  # blank line between blocks
 
@@ -166,9 +167,6 @@ def create_question_prompt(
 ) -> str:
     """Create a prompt for generating a question from a graph path.
 
-    Builds a comprehensive prompt in Vietnamese that instructs the LLM to
-    generate a multi-hop reasoning question based on the provided graph path.
-
     Args:
         path_data: Path dictionary containing hop_count, path, and
             relationships. Used to format the path context.
@@ -176,15 +174,17 @@ def create_question_prompt(
             - "true_false": Generate True/False question
             - "yes_no": Generate Yes/No question
             - "multiple_choice": Generate multiple choice with 4 options
-            If None, LLM chooses the type.
+            If None, question type is chosen automatically.
 
     Returns:
-        Complete prompt string in Vietnamese with instructions for question
-        generation, including path context and formatting requirements.
+        Complete prompt string in Vietnamese for generating a multi-hop
+        reasoning question, including path context and formatting requirements.
+        Note: Prompt is in Vietnamese because it generates Vietnamese questions.
     """
     hop_count = path_data.get("hop_count", 2)
     path_str = format_path_for_prompt(path_data)
     
+    # Build question type instruction in Vietnamese
     type_instruction = ""
     if question_type:
         if question_type == "true_false":
@@ -196,6 +196,7 @@ def create_question_prompt(
     else:
         type_instruction = "Tạo một câu hỏi (có thể là Đúng/Sai, Có/Không, hoặc trắc nghiệm 4 lựa chọn)."
     
+    # Vietnamese prompt template for generating Vietnamese questions
     prompt = f"""Bạn là một chuyên gia tạo câu hỏi đánh giá khả năng suy luận đa bước của mô hình ngôn ngữ dựa trên đồ thị tri thức về con người và sự kiện.
 
 Bạn được cung cấp MỘT đường đi trong đồ thị tri thức. Mỗi node là một thực thể (Person, Event, Organization, Place, ...) và mỗi edge là một quan hệ giữa hai node với:
@@ -280,6 +281,7 @@ async def generate_question_async(
     for attempt in range(MAX_RETRIES):
         try:
             # Build request parameters
+            # System message in Vietnamese: instructs LLM to act as question expert and return valid JSON
             request_params = {
                 "model": OPENAI_MODEL,
                 "messages": [
@@ -658,16 +660,15 @@ def deduplicate_questions(questions: List[Dict]) -> List[Dict]:
 
 
 async def main() -> None:
-    """Main function to generate questions.
+    """Generate multi-hop questions from graph paths.
 
-    Orchestrates the question generation pipeline:
-    1. Loads graph paths from JSON file
-    2. Phase 1 (if not --mass-produce): Generates 30 sample questions
-    3. Phase 2 (if --mass-produce): Generates all 2000 questions with
+    Pipeline:
+    1. Load graph paths from JSON file
+    2. Phase 1 (if not --mass-produce): Generate 30 sample questions
+    3. Phase 2 (if --mass-produce): Generate all 2000 questions with
        resume capability and incremental writing.
 
-    Supports resumable generation by checking existing questions and
-    skipping already-processed paths.
+    Resumable: checks existing questions and skips already-processed paths.
     """
     print("=" * 80)
     print("Generating Multi-hop Questions")

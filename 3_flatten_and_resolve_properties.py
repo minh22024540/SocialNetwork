@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-"""
-Stream-flatten Wikidata claims into simple statements and resolve property labels.
+"""Stream-flatten Wikidata claims into simple statements and resolve property labels.
 
-This module exposes importable functions only. No CLI behavior.
-
-Outputs when using run_flatten_and_resolve():
-1) JSONL with original records but adds wikidata.statements_flat: [{"key": "Pxxx", "value": "..."}]
+Outputs from run_flatten_and_resolve():
+1) JSONL with original records plus wikidata.statements_flat: [{"key": "Pxxx", "value": "..."}]
 2) JSON file mapping property codes to English labels: {"P31": "instance of", ...}
 """
 

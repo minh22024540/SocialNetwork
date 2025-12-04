@@ -106,12 +106,12 @@ def extract_context_snippets(
     max_distance: int = 2000  # Maximum distance between mentions to consider
 ) -> List[str]:
     """Extract text snippets where both person and event are mentioned.
-    
-    This function extracts snippets in two ways:
-    1. Direct mentions: Both entities are mentioned by name/alias in the snippet
-    2. Indirect references: One entity is mentioned, and we extract context that might
+
+    Extracts snippets using two strategies:
+    1. Direct mentions: Both entities mentioned by name/alias in snippet
+    2. Indirect references: One entity mentioned, extract context that may
        contain indirect references to the other (pronouns, titles, etc.)
-    
+
     Args:
         text: Full Wikipedia text.
         person_names: List of normalized person entity names.
