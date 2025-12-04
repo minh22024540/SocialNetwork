@@ -10,8 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
-from SocialNetwork.chatbot.graph_store import GraphStore
-from SocialNetwork.chatbot.alias_linker import link_entities_in_text
+from chatbot.graph_store import GraphStore
+from chatbot.alias_linker import link_entities_in_text
 
 
 @dataclass

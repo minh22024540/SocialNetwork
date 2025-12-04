@@ -15,13 +15,13 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List
 
-from SocialNetwork.chatbot.graph_store import GraphStore
-from SocialNetwork.chatbot.graph_rag import (
+from chatbot.graph_store import GraphStore
+from chatbot.graph_rag import (
     build_chat_prompt_for_free_question,
     build_evidence_from_path_data,
     retrieve_paths_for_question,
 )
-from SocialNetwork.chatbot.ollama_client import OllamaClient, LLMMessage
+from chatbot.ollama_client import OllamaClient, LLMMessage
 
 
 DATA_FILE = Path(__file__).resolve().parents[1] / "data" / "multihop_questions.jsonl"
