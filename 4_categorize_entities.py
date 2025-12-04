@@ -124,10 +124,29 @@ def iter_categorized(jsonl_input_path: str, show_progress: bool = True) -> Itera
         pbar.close()
 
 
-def run_categorize(jsonl_input_path: str, jsonl_output_path: str, preview_jsonl_path: str, show_progress: bool = True) -> Dict[str, int]:
-    """
-    Read JSONL (from code 6 output), add top-level "category": "person"|"event", write JSONL.
-    Returns a summary dict.
+def run_categorize(
+    jsonl_input_path: str,
+    jsonl_output_path: str,
+    preview_jsonl_path: str,
+    show_progress: bool = True
+) -> Dict[str, int]:
+    """Categorize entities as person or event and write to JSONL.
+
+    Reads JSONL from previous pipeline step, classifies each entity as
+    "person" or "event" based on Wikidata statements, and writes categorized
+    entities to output JSONL. Also generates a preview file with sample
+    entities and their categories.
+
+    Args:
+        jsonl_input_path: Path to input JSONL file with entity data.
+        jsonl_output_path: Path to output JSONL file with categorized entities.
+        preview_jsonl_path: Path to preview JSONL file with sample entities.
+        show_progress: Whether to show progress bar. Defaults to True.
+
+    Returns:
+        Dictionary with summary statistics:
+        - processed: Number of entities processed
+        - written: Number of entities written to output
     """
     inp = Path(jsonl_input_path)
     outp = Path(jsonl_output_path)
@@ -266,11 +285,15 @@ def fetch_item_labels_en(qids: list[str]) -> Dict[str, str]:
 
 
 if __name__ == "__main__":
-    # Minimal runner: adjust paths as needed
+    # Minimal runner with project-relative paths
+    from pathlib import Path as _Path
+
+    data_raw = _Path(__file__).resolve().parent / "data_raw"
+
     summary = run_categorize(
-        jsonl_input_path="/home/ubuntu/Videos/wiki_entities_with_flat_statements.jsonl",
-        jsonl_output_path="/home/ubuntu/Videos/wiki_entities_with_category.jsonl",
-        preview_jsonl_path="/home/ubuntu/Videos/wiki_entities_category_preview.jsonl",
+        jsonl_input_path=str(data_raw / "wiki_entities_with_flat_statements.jsonl"),
+        jsonl_output_path=str(data_raw / "wiki_entities_with_category.jsonl"),
+        preview_jsonl_path=str(data_raw / "wiki_entities_category_preview.jsonl"),
         show_progress=True,
     )
     print(summary)

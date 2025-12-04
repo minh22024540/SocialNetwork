@@ -106,15 +106,35 @@ def fetch_property_labels_en(property_ids: List[str], show_progress: bool = Fals
     return result
 
 
-def run_flatten_and_resolve(input_path: str, out_jsonl_path: str, out_props_path: str, limit: int = 0, show_progress: bool = True) -> Dict[str, int]:
-    """
-    Perform end-to-end processing without CLI:
-    - Read input JSONL
-    - Add wikidata.statements_flat filtered to string|wikibase-entityid
-    - Write updated JSONL
-    - Resolve property IDs to English labels and write JSON mapping
+def run_flatten_and_resolve(
+    input_path: str,
+    out_jsonl_path: str,
+    out_props_path: str,
+    limit: int = 0,
+    show_progress: bool = True
+) -> Dict[str, int]:
+    """Perform end-to-end flattening and property resolution.
 
-    Returns a summary dict: {processed, written, props, labeled}
+    Processes Wikidata claims by:
+    1. Flattening claims to statements_flat format (filtered to string/entityid)
+    2. Resolving property IDs to English labels via Wikidata API
+    3. Writing updated JSONL with flattened statements
+    4. Writing property ID -> label mapping to JSON
+
+    Args:
+        input_path: Path to input JSONL file with entity data.
+        out_jsonl_path: Path to output JSONL file with flattened statements.
+        out_props_path: Path to output JSON file with property labels.
+        limit: Maximum number of records to process (0 = no limit).
+            Defaults to 0.
+        show_progress: Whether to show progress bar. Defaults to True.
+
+    Returns:
+        Dictionary with summary statistics:
+        - processed: Number of records processed
+        - written: Number of records written
+        - props: Number of unique properties found
+        - labeled: Number of properties with resolved labels
     """
     in_path = Path(input_path)
     out_jsonl = Path(out_jsonl_path)
@@ -182,11 +202,17 @@ def run_flatten_and_resolve(input_path: str, out_jsonl_path: str, out_props_path
 
 
 if __name__ == "__main__":
-    # Minimal, non-interactive example runner. Adjust paths as needed.
+    # Minimal, non-interactive example runner, using project-relative paths.
+    from pathlib import Path as _Path
+
+    project_root = _Path(__file__).resolve().parents[2]
+    data_raw = _Path(__file__).resolve().parent / "data_raw"
+    data_analysis = _Path(__file__).resolve().parent / "data_analysis"
+
     summary = run_flatten_and_resolve(
-        input_path="/home/ubuntu/Videos/wiki_entities_full_from_xml.jsonl",
-        out_jsonl_path="/home/ubuntu/Videos/wiki_entities_with_flat_statements.jsonl",
-        out_props_path="/home/ubuntu/Videos/properties_en_labels.json",
+        input_path=data_raw / "wiki_entities_full_from_xml.jsonl",
+        out_jsonl_path=data_raw / "wiki_entities_with_flat_statements.jsonl",
+        out_props_path=data_analysis / "properties_en_labels.json",
         limit=0,
         show_progress=True,
     )

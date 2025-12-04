@@ -1,0 +1,33 @@
+# Python bytecode / cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Editor / OS files
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Logs
+*.log
+*.log.old
+
+# Large raw / derived data managed outside version control
+data_raw/
+data_analysis/
+data/
+
+# Neo4j / Docker artefacts (if any are created here)
+*.db
+*.db.*
+logs/
+
+

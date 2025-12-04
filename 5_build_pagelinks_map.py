@@ -1199,7 +1199,7 @@ def run(sql_path_str: str,
 
     # Write normal and Neo4j JSONL, injecting resolved labels for people
     preview_out = Path(preview_out_path_str) if preview_out_path_str else None
-    neo4j_out = Path('/home/ubuntu/Videos/wiki_entities_neo4j.jsonl')
+    neo4j_out = Path(__file__).resolve().parent / "data_raw" / "wiki_entities_neo4j.jsonl"
     # To inject labels without rewriting extraction, post-process the written neo4j jsonl by streaming and adding fields
     # Simpler: during CSV export, we will insert labels; and we will also rewrite neo4j jsonl after writing.
     write_augmented_jsonl(jsonl_in, jsonl_out, src_to_targets, preview_out, id_to_title, neo4j_out)
@@ -1305,16 +1305,21 @@ def run(sql_path_str: str,
 
 
 if __name__ == '__main__':
-    # Adjust paths as needed
+    # Adjust paths as needed, now project-relative
+    from pathlib import Path as _Path
+
+    project_root = _Path(__file__).resolve().parents[2]
+    data_raw = _Path(__file__).resolve().parent / "data_raw"
+
     run(
         sql_path_str='',
-        jsonl_in_path_str='/home/ubuntu/Videos/wiki_entities_with_category.jsonl',
-        jsonl_out_path_str='/home/ubuntu/Videos/wiki_entities_with_links.jsonl',
+        jsonl_in_path_str=str(data_raw / 'wiki_entities_with_category.jsonl'),
+        jsonl_out_path_str=str(data_raw / 'wiki_entities_with_links.jsonl'),
         linktarget_sql_path_str=None,
-        page_sql_path_str='/home/ubuntu/Videos/viwiki_data/viwiki-20251020-page.sql.gz',
+        page_sql_path_str=str(project_root / 'viwiki_data' / 'viwiki-20251020-page.sql.gz'),
         pages_xml_bz2_path_str=None,
-        preview_out_path_str='/home/ubuntu/Videos/wiki_entities_with_links_preview.jsonl',
-        redirect_sql_path_str='/home/ubuntu/Videos/viwiki_data/viwiki-20251020-redirect.sql.gz',
+        preview_out_path_str=str(data_raw / 'wiki_entities_with_links_preview.jsonl'),
+        redirect_sql_path_str=str(project_root / 'viwiki_data' / 'viwiki-20251020-redirect.sql.gz'),
     )
 
 

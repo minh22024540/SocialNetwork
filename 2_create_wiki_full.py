@@ -440,8 +440,13 @@ async def create_full_wiki_entities_from_full_text_async(input_file: str, props_
     return True
 
 
-def main():
-    """Main function."""
+def main() -> None:
+    """Main function to create full WikiEntity objects.
+
+    Orchestrates the process of enriching Wikipedia entities with Wikidata
+    data by fetching Wikidata properties for each entity via API and
+    combining them into full WikiEntity objects.
+    """
     input_file = "wikipedia_full_text.json"
     props_file = "viwiki_data/viwiki-20251020-page_props.sql.gz"
     output_file = "wiki_entities_full_from_xml.jsonl"

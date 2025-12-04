@@ -637,8 +637,12 @@ def parse_all_pages(dump_file_path):
     
     return True
 
-def main():
-    """Main function to run the parser."""
+def main() -> None:
+    """Main function to run the Wikipedia parser.
+
+    Parses Wikipedia XML dump file to extract entities (persons and events)
+    and saves them to JSONL format for further processing in the pipeline.
+    """
     
     # Check if dump file exists
     dump_file = Path("viwiki_data/viwiki-20251020-pages-articles.xml.bz2")

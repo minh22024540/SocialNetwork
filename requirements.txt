@@ -1,0 +1,29 @@
+# Core dependencies for Social Network Knowledge Graph Pipeline
+
+# Wikipedia parsing
+mwxml>=0.3.0
+
+# Graph database
+neo4j>=5.0.0
+
+# Graph analysis
+networkx>=3.0
+
+# LLM and transformers (for chatbot)
+transformers>=4.45.0
+torch>=2.0.0
+
+# HTTP clients
+aiohttp>=3.9.0
+requests>=2.31.0
+httpx>=0.25.0
+
+# OpenAI API client
+openai>=1.0.0
+
+# Progress bars
+tqdm>=4.66.0
+
+# Standard library enhancements (usually included, but listed for completeness)
+# json, pathlib, dataclasses, typing, asyncio, re, time, sys, os - all built-in
+
