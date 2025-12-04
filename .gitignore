@@ -20,6 +20,26 @@ env/
 *.log
 *.log.old
 
+# Large raw / derived data managed outside version control
+# Ignore non-LLM generated files (can be recreated from source data)
+data_raw/*
+!data_raw/enriched_relationships.jsonl
+!data_raw/enriched_relationships_cache.json
+
+data_analysis/
+
+# Data directory - keep config/benchmark files and LLM-generated files
+data/*
+!data/*.json
+!data/*.jsonl
+!data/*.txt
+!data/*.md
+!data/.gitkeep
+# Specifically keep LLM-generated benchmark files
+!data/multihop_questions.jsonl
+!data/sample_questions.jsonl
+data/*.db
+data/*.db.*
 
 # Neo4j / Docker artefacts (if any are created here)
 *.db
