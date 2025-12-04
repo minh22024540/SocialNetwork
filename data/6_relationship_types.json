@@ -1,0 +1,56 @@
+{
+  "relationship_types": [
+    {
+      "type": "PARTICIPATED_IN",
+      "description": "Person participated in event",
+      "examples": ["attended", "took part in", "was involved in"]
+    },
+    {
+      "type": "LED",
+      "description": "Person led or organized event",
+      "examples": ["led", "organized", "commanded", "headed"]
+    },
+    {
+      "type": "CAUSED",
+      "description": "Person caused event to happen",
+      "examples": ["caused", "triggered", "initiated", "started"]
+    },
+    {
+      "type": "INFLUENCED",
+      "description": "Person influenced event",
+      "examples": ["influenced", "affected", "shaped", "impacted"]
+    },
+    {
+      "type": "FOUGHT_IN",
+      "description": "Person fought in battle or war event",
+      "examples": ["fought in", "battled in", "combat in", "war in"]
+    },
+    {
+      "type": "ATTENDED",
+      "description": "Person attended event",
+      "examples": ["attended", "was present at", "went to", "participated in"]
+    },
+    {
+      "type": "WITNESSED",
+      "description": "Person witnessed event",
+      "examples": ["witnessed", "saw", "observed", "experienced"]
+    },
+    {
+      "type": "SUPPORTED",
+      "description": "Person supported event",
+      "examples": ["supported", "backed", "endorsed", "favored"]
+    },
+    {
+      "type": "OPPOSED",
+      "description": "Person opposed event",
+      "examples": ["opposed", "resisted", "fought against", "rejected"]
+    },
+    {
+      "type": "RELATED_TO",
+      "description": "General relationship between person and event",
+      "examples": ["related to", "connected to", "associated with"]
+    }
+  ],
+  "note": "OpenAI can suggest additional relationship types if none of these fit the context"
+}
+
