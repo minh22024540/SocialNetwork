@@ -54,11 +54,36 @@ def chat_with_example(q_id: str) -> None:
         print(f"Question with id={q_id} not found in {DATA_FILE}")
         return
 
+    store = GraphStore()
     client = OllamaClient()
     try:
-        prompts = build_chat_prompt_for_question(example)
-        system_prompt = prompts["system_prompt"]
-        user_content = prompts["user_content"]
+        question_text = example.get("question", "").strip()
+        q_type = example.get("type", "true_false")
+        hop_count = int(example.get("hop_count", 2))
+        
+        # Retrieve paths from Neo4j (like evaluate_chatbot does)
+        print(f"Retrieving paths from knowledge graph for question: {question_text[:50]}...")
+        path_dicts = retrieve_paths_for_question(
+            question_text=question_text,
+            hop_hint=hop_count,
+            store=store,
+            max_paths=5,
+        )
+        
+        print(f"Found {len(path_dicts)} path(s)\n")
+        
+        # Build evidence from retrieved paths
+        evidences = [build_evidence_from_path_data(p) for p in path_dicts]
+        
+        # Build prompt using retrieved paths
+        prompt_parts = build_chat_prompt_for_free_question(
+            question_text=question_text,
+            q_type=q_type,
+            hop_count=hop_count,
+            evidences=evidences,
+        )
+        system_prompt = prompt_parts["system_prompt"]
+        user_content = prompt_parts["user_content"]
 
         print("=== Graph context + question sent to model ===")
         print(user_content)
@@ -75,6 +100,7 @@ def chat_with_example(q_id: str) -> None:
         print(resp.text)
         print("====================")
     finally:
+        store.close()
         client.close()
 
 
