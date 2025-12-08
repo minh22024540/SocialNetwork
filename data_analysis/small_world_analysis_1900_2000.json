@@ -1,0 +1,38 @@
+{
+  "temporal_filtering": {
+    "start_year": 1900,
+    "end_year": 2000,
+    "enabled": true
+  },
+  "graph_statistics": {
+    "total_nodes": 4820,
+    "total_edges": 3029,
+    "person_nodes": 4088,
+    "event_nodes": 353,
+    "projection_nodes": 4088,
+    "projection_edges": 65461
+  },
+  "small_world_metrics": {
+    "average_shortest_path_length": 0.22339337180254232,
+    "clustering_coefficient": 0.021957983871543053,
+    "path_statistics": {
+      "average_path_length": 0.22339337180254232,
+      "clustering_coefficient": 0.021957983871543053,
+      "nodes_in_component": 611,
+      "edges_in_component": 65461
+    }
+  },
+  "random_baseline": {
+    "average_shortest_path_length": 2.763471984340592,
+    "clustering_coefficient": 0.007701434069922984,
+    "L_ratio": 0.08083793614280026,
+    "C_ratio": 2.8511552098195962,
+    "small_world_coefficient_sigma": 35.27001487003613
+  },
+  "small_world_property": {
+    "is_small_world": true,
+    "average_path_length": 0.22339337180254232,
+    "clustering_coefficient": 0.021957983871543053,
+    "interpretation": "Small world property holds (L_actual/L_random ≈ 0.08, C_actual/C_random ≈ 2.85, σ ≈ 35.27)"
+  }
+}
