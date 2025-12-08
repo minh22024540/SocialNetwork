@@ -16,6 +16,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List
 
+from tqdm import tqdm
+
 # Add parent directory to path so we can import chatbot modules
 _script_dir = Path(__file__).resolve().parent
 _parent_dir = _script_dir.parent
@@ -94,8 +96,19 @@ def evaluate(
         if not DATA_FILE.exists():
             raise FileNotFoundError(f"Data file not found: {DATA_FILE}")
 
+        # Count total lines for progress bar
+        print("Counting questions...")
         with DATA_FILE.open("r", encoding="utf-8") as f:
-            for idx, line in enumerate(f, 1):
+            total_lines = sum(1 for line in f if line.strip())
+        
+        if max_examples is not None:
+            total_lines = min(total_lines, max_examples)
+        
+        print(f"Evaluating {total_lines} questions...\n")
+
+        with DATA_FILE.open("r", encoding="utf-8") as f:
+            pbar = tqdm(enumerate(f, 1), total=total_lines, desc="Evaluating", unit="question")
+            for idx, line in pbar:
                 if max_examples is not None and stats.total >= max_examples:
                     break
                 if not line.strip():
@@ -136,11 +149,12 @@ def evaluate(
                 is_correct = predicted == correct_answer
                 stats.update(hop_count, q_type, is_correct)
 
-                if idx % 50 == 0:
-                    print(
-                        f"[{idx}] running accuracy: "
-                        f"{stats.correct}/{stats.total} = {stats.correct / max(stats.total,1):.3f}"
-                    )
+                # Update progress bar with current accuracy
+                current_acc = stats.correct / max(stats.total, 1)
+                pbar.set_postfix({
+                    "accuracy": f"{current_acc:.3f}",
+                    "correct": f"{stats.correct}/{stats.total}"
+                })
     finally:
         store.close()
 

@@ -20,7 +20,7 @@ except ImportError as e:  # pragma: no cover - runtime import guard
 
 
 # Keep defaults consistent with the data-loading scripts.
-NEO4J_URI = "bolt://localhost:7687"
+NEO4J_URI = "bolt://192.168.100.127:7687"
 NEO4J_USER = "neo4j"
 NEO4J_PASS = "neo4jtest12"
 DB_NAME = "wiki.db"
@@ -170,24 +170,160 @@ class GraphStore:
         self,
         candidate_ids: List[int],
         max_paths: int = 5,
+        person_ids: Optional[List[int]] = None,
     ) -> List[Dict[str, Any]]:
-        """Sample 2-hop Person–Event–Person paths touching any of the candidate ids."""
+        """Sample 2-hop Person–Event–Person paths touching any of the candidate ids.
+        
+        If person_ids is provided, prioritize paths that contain those Person entities.
+        """
         if not candidate_ids:
             return []
 
-        query = """
-        MATCH path = (p1:Person)-[r1:HAS_RELATIONSHIP]->(e:Event)<-[r2:HAS_RELATIONSHIP]-(p2:Person)
-        WHERE p1 <> p2
-          AND (p1.id IN $ids OR p2.id IN $ids OR e.id IN $ids)
-        RETURN p1.id AS person1_id, p1.title AS person1_name,
-               e.id AS event_id, e.title AS event_name,
-               p2.id AS person2_id, p2.title AS person2_name,
-               r1.type AS rel1_type, r2.type AS rel2_type,
-               r1.confidence AS rel1_confidence, r2.confidence AS rel2_confidence,
-               r1.evidence_text AS rel1_evidence, r2.evidence_text AS rel2_evidence
-        LIMIT $limit
-        """
-        rows = self._run(query, {"ids": candidate_ids, "limit": int(max_paths)})
+        # If we have specific Person IDs, try to find paths connecting them first
+        if person_ids and len(person_ids) >= 2:
+            # Query for paths that connect the specific persons
+            # Note: entities might be labeled "Page" instead of "Person", so don't require Person label
+            query_connecting = """
+            MATCH path = (p1)-[r1:HAS_RELATIONSHIP]->(e:Event)<-[r2:HAS_RELATIONSHIP]-(p2)
+            WHERE p1.id IN $person_ids AND p2.id IN $person_ids AND p1 <> p2
+            RETURN p1.id AS person1_id, p1.title AS person1_name,
+                   e.id AS event_id, e.title AS event_name,
+                   p2.id AS person2_id, p2.title AS person2_name,
+                   r1.type AS rel1_type, r2.type AS rel2_type,
+                   r1.confidence AS rel1_confidence, r2.confidence AS rel2_confidence,
+                   r1.evidence_text AS rel1_evidence, r2.evidence_text AS rel2_evidence
+            ORDER BY r1.confidence + r2.confidence DESC
+            LIMIT $limit
+            """
+            # Try multiple query patterns to find paths connecting persons
+            all_connecting_paths = []
+            
+            # Pattern 1: Both persons in path
+            # This is the most important query - it finds paths connecting the mentioned entities
+            rows_connecting = self._run(
+                query_connecting, 
+                {"person_ids": person_ids, "limit": int(max_paths * 10)}  # Get many more paths
+            )
+            if rows_connecting:
+                for row in rows_connecting:
+                    all_connecting_paths.append({
+                        "hop_count": 2,
+                        "path": [
+                            {"type": "person", "id": row["person1_id"], "name": row["person1_name"]},
+                            {"type": "event", "id": row["event_id"], "name": row["event_name"]},
+                            {"type": "person", "id": row["person2_id"], "name": row["person2_name"]},
+                        ],
+                        "relationships": [
+                            {"type": row["rel1_type"], "confidence": row.get("rel1_confidence", 0.5), "evidence_text": row.get("rel1_evidence", "")},
+                            {"type": row["rel2_type"], "confidence": row.get("rel2_confidence", 0.5), "evidence_text": row.get("rel2_evidence", "")},
+                        ],
+                    })
+            
+            # Pattern 2: At least one person in path (broader search)
+            query_broader = """
+            MATCH path = (p1)-[r1:HAS_RELATIONSHIP]->(e:Event)<-[r2:HAS_RELATIONSHIP]-(p2)
+            WHERE (p1.id IN $person_ids OR p2.id IN $person_ids) AND p1 <> p2
+            RETURN p1.id AS person1_id, p1.title AS person1_name,
+                   e.id AS event_id, e.title AS event_name,
+                   p2.id AS person2_id, p2.title AS person2_name,
+                   r1.type AS rel1_type, r2.type AS rel2_type,
+                   r1.confidence AS rel1_confidence, r2.confidence AS rel2_confidence,
+                   r1.evidence_text AS rel1_evidence, r2.evidence_text AS rel2_evidence
+            LIMIT $limit
+            """
+            rows_broader = self._run(
+                query_broader,
+                {"person_ids": person_ids, "limit": int(max_paths * 3)}
+            )
+            if rows_broader:
+                for row in rows_broader:
+                    # Avoid duplicates
+                    path_key = (row["person1_id"], row["event_id"], row["person2_id"])
+                    if not any(p["path"][0]["id"] == path_key[0] and 
+                              p["path"][1]["id"] == path_key[1] and 
+                              p["path"][2]["id"] == path_key[2] 
+                              for p in all_connecting_paths):
+                        all_connecting_paths.append({
+                            "hop_count": 2,
+                            "path": [
+                                {"type": "person", "id": row["person1_id"], "name": row["person1_name"]},
+                                {"type": "event", "id": row["event_id"], "name": row["event_name"]},
+                                {"type": "person", "id": row["person2_id"], "name": row["person2_name"]},
+                            ],
+                            "relationships": [
+                                {"type": row["rel1_type"], "confidence": row.get("rel1_confidence", 0.5), "evidence_text": row.get("rel1_evidence", "")},
+                                {"type": row["rel2_type"], "confidence": row.get("rel2_confidence", 0.5), "evidence_text": row.get("rel2_evidence", "")},
+                            ],
+                        })
+            
+            if all_connecting_paths:
+                # Return all connecting paths - they're already the best matches
+                # Sort by number of person_ids in path (prefer paths with more matches)
+                def path_priority(p):
+                    path_person_ids = {node.get("id") for node in p.get("path", []) if node.get("type") == "person"}
+                    matches = sum(1 for pid in person_ids if pid in path_person_ids)
+                    # Prefer paths where BOTH persons are in the path
+                    both_in_path = sum(1 for pid in person_ids if pid in path_person_ids) >= 2
+                    return (both_in_path, matches)
+                
+                all_connecting_paths.sort(key=path_priority, reverse=True)
+                return all_connecting_paths[:max_paths]
+
+        # Fallback: general query touching any candidate
+        # Use flexible query that doesn't require Person labels (entities might be Page)
+        # Retrieve many more paths for better coverage
+        # BUT: prioritize paths containing person_ids if provided
+        if person_ids and len(person_ids) >= 2:
+            # First try to find paths with at least one person_id
+            query_prioritized = """
+            MATCH path = (p1)-[r1:HAS_RELATIONSHIP]->(e:Event)<-[r2:HAS_RELATIONSHIP]-(p2)
+            WHERE p1 <> p2
+              AND (p1.id IN $person_ids OR p2.id IN $person_ids)
+              AND (p1.id IN $ids OR p2.id IN $ids OR e.id IN $ids)
+            RETURN p1.id AS person1_id, p1.title AS person1_name,
+                   e.id AS event_id, e.title AS event_name,
+                   p2.id AS person2_id, p2.title AS person2_name,
+                   r1.type AS rel1_type, r2.type AS rel2_type,
+                   r1.confidence AS rel1_confidence, r2.confidence AS rel2_confidence,
+                   r1.evidence_text AS rel1_evidence, r2.evidence_text AS rel2_evidence
+            ORDER BY CASE WHEN p1.id IN $person_ids AND p2.id IN $person_ids THEN 1 ELSE 2 END
+            LIMIT $limit
+            """
+            rows_prioritized = self._run(
+                query_prioritized, 
+                {"ids": candidate_ids, "person_ids": person_ids, "limit": int(max_paths * 2)}
+            )
+            if rows_prioritized:
+                rows = rows_prioritized
+            else:
+                # Fallback to general query
+                query = """
+                MATCH path = (p1)-[r1:HAS_RELATIONSHIP]->(e:Event)<-[r2:HAS_RELATIONSHIP]-(p2)
+                WHERE p1 <> p2
+                  AND (p1.id IN $ids OR p2.id IN $ids OR e.id IN $ids)
+                RETURN p1.id AS person1_id, p1.title AS person1_name,
+                       e.id AS event_id, e.title AS event_name,
+                       p2.id AS person2_id, p2.title AS person2_name,
+                       r1.type AS rel1_type, r2.type AS rel2_type,
+                       r1.confidence AS rel1_confidence, r2.confidence AS rel2_confidence,
+                       r1.evidence_text AS rel1_evidence, r2.evidence_text AS rel2_evidence
+                LIMIT $limit
+                """
+                rows = self._run(query, {"ids": candidate_ids, "limit": int(max_paths * 3)})
+        else:
+            query = """
+            MATCH path = (p1)-[r1:HAS_RELATIONSHIP]->(e:Event)<-[r2:HAS_RELATIONSHIP]-(p2)
+            WHERE p1 <> p2
+              AND (p1.id IN $ids OR p2.id IN $ids OR e.id IN $ids)
+            RETURN p1.id AS person1_id, p1.title AS person1_name,
+                   e.id AS event_id, e.title AS event_name,
+                   p2.id AS person2_id, p2.title AS person2_name,
+                   r1.type AS rel1_type, r2.type AS rel2_type,
+                   r1.confidence AS rel1_confidence, r2.confidence AS rel2_confidence,
+                   r1.evidence_text AS rel1_evidence, r2.evidence_text AS rel2_evidence
+            LIMIT $limit
+            """
+            rows = self._run(query, {"ids": candidate_ids, "limit": int(max_paths * 3)})
 
         paths: List[Dict[str, Any]] = []
         for row in rows:
@@ -231,14 +367,71 @@ class GraphStore:
         self,
         candidate_ids: List[int],
         max_paths: int = 5,
+        person_ids: Optional[List[int]] = None,
     ) -> List[Dict[str, Any]]:
-        """Sample 3-hop Person–Event–Person–Event–Person paths touching candidates."""
+        """Sample 3-hop Person–Event–Person–Event–Person paths touching candidates.
+        
+        If person_ids is provided, prioritize paths that contain those Person entities.
+        """
         if not candidate_ids:
             return []
 
+        # If we have specific Person IDs, try to find paths connecting them first
+        if person_ids and len(person_ids) >= 2:
+            # Query for paths that connect the specific persons (3-hop: Person-Event-Person-Event-Person)
+            # Try multiple patterns to find paths connecting the persons
+            all_connecting_paths = []
+            
+            # Pattern 1: p1 and p3 are in person_ids (start and end)
+            query_connecting = """
+            MATCH path = (p1)-[r1:HAS_RELATIONSHIP]->(e1:Event)<-[r2:HAS_RELATIONSHIP]-(p2)
+                  -[r3:HAS_RELATIONSHIP]->(e2:Event)<-[r4:HAS_RELATIONSHIP]-(p3)
+            WHERE p1.id IN $person_ids AND p3.id IN $person_ids AND p1 <> p2 AND p2 <> p3 AND p1 <> p3
+            RETURN p1.id AS person1_id, p1.title AS person1_name,
+                   e1.id AS event1_id, e1.title AS event1_name,
+                   p2.id AS person2_id, p2.title AS person2_name,
+                   e2.id AS event2_id, e2.title AS event2_name,
+                   p3.id AS person3_id, p3.title AS person3_name,
+                   r1.type AS rel1_type, r2.type AS rel2_type,
+                   r3.type AS rel3_type, r4.type AS rel4_type,
+                   r1.confidence AS rel1_confidence, r2.confidence AS rel2_confidence,
+                   r3.confidence AS rel3_confidence, r4.confidence AS rel4_confidence,
+                   r1.evidence_text AS rel1_evidence, r2.evidence_text AS rel2_evidence,
+                   r3.evidence_text AS rel3_evidence, r4.evidence_text AS rel4_evidence
+            ORDER BY r1.confidence + r2.confidence + r3.confidence + r4.confidence DESC
+            LIMIT $limit
+            """
+            rows_connecting = self._run(
+                query_connecting, 
+                {"person_ids": person_ids, "limit": int(max_paths * 5)}
+            )
+            if rows_connecting:
+                # Found paths connecting the specific persons - use these
+                paths = []
+                for row in rows_connecting:
+                    paths.append({
+                        "hop_count": 3,
+                        "path": [
+                            {"type": "person", "id": row["person1_id"], "name": row["person1_name"]},
+                            {"type": "event", "id": row["event1_id"], "name": row["event1_name"]},
+                            {"type": "person", "id": row["person2_id"], "name": row["person2_name"]},
+                            {"type": "event", "id": row["event2_id"], "name": row["event2_name"]},
+                            {"type": "person", "id": row["person3_id"], "name": row["person3_name"]},
+                        ],
+                        "relationships": [
+                            {"type": row["rel1_type"], "confidence": row.get("rel1_confidence", 0.5), "evidence_text": row.get("rel1_evidence", "")},
+                            {"type": row["rel2_type"], "confidence": row.get("rel2_confidence", 0.5), "evidence_text": row.get("rel2_evidence", "")},
+                            {"type": row["rel3_type"], "confidence": row.get("rel3_confidence", 0.5), "evidence_text": row.get("rel3_evidence", "")},
+                            {"type": row["rel4_type"], "confidence": row.get("rel4_confidence", 0.5), "evidence_text": row.get("rel4_evidence", "")},
+                        ],
+                    })
+                return paths
+
+        # Fallback: general query touching any candidate
+        # Use a more flexible query that doesn't require Person labels
         query = """
-        MATCH path = (p1:Person)-[r1:HAS_RELATIONSHIP]->(e1:Event)<-[r2:HAS_RELATIONSHIP]-(p2:Person)
-              -[r3:HAS_RELATIONSHIP]->(e2:Event)<-[r4:HAS_RELATIONSHIP]-(p3:Person)
+        MATCH path = (p1)-[r1:HAS_RELATIONSHIP]->(e1:Event)<-[r2:HAS_RELATIONSHIP]-(p2)
+              -[r3:HAS_RELATIONSHIP]->(e2:Event)<-[r4:HAS_RELATIONSHIP]-(p3)
         WHERE p1 <> p2 AND p2 <> p3 AND p1 <> p3
           AND (p1.id IN $ids OR p2.id IN $ids OR p3.id IN $ids
                OR e1.id IN $ids OR e2.id IN $ids)
