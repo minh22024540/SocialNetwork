@@ -1,0 +1,402 @@
+[
+  {
+    "community_id": "9",
+    "label": "Chiến tranh Đông Dương: Bảo Đại, Hoàng Văn Hoan",
+    "size": 244,
+    "persons": 233,
+    "events": 11,
+    "person_ratio": 0.9549180327868853,
+    "sample_nodes": [
+      {
+        "id": 15247,
+        "title": "Bảo Đại",
+        "category": "person"
+      },
+      {
+        "id": 42135,
+        "title": "Hoàng Văn Hoan",
+        "category": "person"
+      },
+      {
+        "id": 61360,
+        "title": "Nguyễn Văn Hinh",
+        "category": "person"
+      },
+      {
+        "id": 1742981,
+        "title": "Ngô Tử Hạ",
+        "category": "person"
+      },
+      {
+        "id": 1287,
+        "title": "Chiến tranh Đông Dương",
+        "category": "event"
+      },
+      {
+        "id": 56428,
+        "title": "Cách mạng Tháng Tám",
+        "category": "event"
+      }
+    ]
+  },
+  {
+    "community_id": "5",
+    "label": "Chiến dịch Điện Biên Phủ: Võ Nguyên Giáp, Phạm Văn Đồng",
+    "size": 198,
+    "persons": 145,
+    "events": 53,
+    "person_ratio": 0.7323232323232324,
+    "sample_nodes": [
+      {
+        "id": 867,
+        "title": "Võ Nguyên Giáp",
+        "category": "person"
+      },
+      {
+        "id": 1291,
+        "title": "Phạm Văn Đồng",
+        "category": "person"
+      },
+      {
+        "id": 6297,
+        "title": "Lê Duẩn",
+        "category": "person"
+      },
+      {
+        "id": 13962,
+        "title": "Phạm Tuân",
+        "category": "person"
+      },
+      {
+        "id": 18218,
+        "title": "Trường Chinh",
+        "category": "person"
+      },
+      {
+        "id": 375318,
+        "title": "Hồ Chí Minh",
+        "category": "person"
+      }
+    ]
+  },
+  {
+    "community_id": "11",
+    "label": "Sự kiện 30 tháng 4 năm 1975: Bùi Tín, Nguyễn Hữu Hạnh",
+    "size": 155,
+    "persons": 148,
+    "events": 7,
+    "person_ratio": 0.9548387096774194,
+    "sample_nodes": [
+      {
+        "id": 16694,
+        "title": "Bùi Tín",
+        "category": "person"
+      },
+      {
+        "id": 49647,
+        "title": "Nguyễn Hữu Hạnh",
+        "category": "person"
+      },
+      {
+        "id": 4638,
+        "title": "Sự kiện 30 tháng 4 năm 1975",
+        "category": "event"
+      },
+      {
+        "id": 3367,
+        "title": "Năm Cam",
+        "category": "person"
+      },
+      {
+        "id": 3465,
+        "title": "Trịnh Công Sơn",
+        "category": "person"
+      },
+      {
+        "id": 29556,
+        "title": "Nguyễn Khoa Nam",
+        "category": "person"
+      }
+    ]
+  },
+  {
+    "community_id": "7",
+    "label": "Trận Rạch Gầm – Xoài Mút: Quang Trung, Lê Đức Thọ",
+    "size": 136,
+    "persons": 110,
+    "events": 26,
+    "person_ratio": 0.8088235294117647,
+    "sample_nodes": [
+      {
+        "id": 116,
+        "title": "Quang Trung",
+        "category": "person"
+      },
+      {
+        "id": 71402,
+        "title": "Trận Rạch Gầm – Xoài Mút",
+        "category": "event"
+      },
+      {
+        "id": 187496,
+        "title": "Trận Ngọc Hồi – Đống Đa",
+        "category": "event"
+      },
+      {
+        "id": 292088,
+        "title": "Hiệp ước Versailles (1787)",
+        "category": "event"
+      },
+      {
+        "id": 10086,
+        "title": "Lê Đức Thọ",
+        "category": "person"
+      },
+      {
+        "id": 16606,
+        "title": "Trần Trọng Kim",
+        "category": "person"
+      }
+    ]
+  },
+  {
+    "community_id": "15",
+    "label": "Chiến tranh Nguyên Mông – Đại Việt: Trần Hưng Đạo, Trần Ích Tắc",
+    "size": 131,
+    "persons": 108,
+    "events": 23,
+    "person_ratio": 0.8244274809160306,
+    "sample_nodes": [
+      {
+        "id": 746,
+        "title": "Trần Hưng Đạo",
+        "category": "person"
+      },
+      {
+        "id": 87490,
+        "title": "Chiến tranh Nguyên Mông – Đại Việt",
+        "category": "event"
+      },
+      {
+        "id": 136933,
+        "title": "Trận Bạch Đằng (1288)",
+        "category": "event"
+      },
+      {
+        "id": 194744,
+        "title": "Chiến tranh Nguyên Mông – Đại Việt lần 2",
+        "category": "event"
+      },
+      {
+        "id": 344159,
+        "title": "Chiến tranh Nguyên Mông – Đại Việt lần 3",
+        "category": "event"
+      },
+      {
+        "id": 72544,
+        "title": "Trần Ích Tắc",
+        "category": "person"
+      }
+    ]
+  },
+  {
+    "community_id": "14",
+    "label": "Chiến dịch Mùa Xuân 1975: Trần Văn Trà, Văn Tiến Dũng",
+    "size": 130,
+    "persons": 105,
+    "events": 25,
+    "person_ratio": 0.8076923076923077,
+    "sample_nodes": [
+      {
+        "id": 13024,
+        "title": "Trần Văn Trà",
+        "category": "person"
+      },
+      {
+        "id": 11651,
+        "title": "Chiến dịch Mùa Xuân 1975",
+        "category": "event"
+      },
+      {
+        "id": 14210,
+        "title": "Sự kiện Tết Mậu Thân",
+        "category": "event"
+      },
+      {
+        "id": 15372,
+        "title": "Chiến tranh biên giới Việt Nam – Campuchia",
+        "category": "event"
+      },
+      {
+        "id": 100532,
+        "title": "Chiến dịch Xuân – Hè 1972",
+        "category": "event"
+      },
+      {
+        "id": 1271,
+        "title": "Văn Tiến Dũng",
+        "category": "person"
+      }
+    ]
+  },
+  {
+    "community_id": "4",
+    "label": "Chiến tranh Việt Nam: Nguyễn Văn Hiếu (trung tướng), Đồng Sĩ Nguyên",
+    "size": 116,
+    "persons": 110,
+    "events": 6,
+    "person_ratio": 0.9482758620689655,
+    "sample_nodes": [
+      {
+        "id": 779,
+        "title": "Chiến tranh Việt Nam",
+        "category": "event"
+      },
+      {
+        "id": 44970,
+        "title": "Nguyễn Văn Hiếu (trung tướng)",
+        "category": "person"
+      },
+      {
+        "id": 62117,
+        "title": "Đồng Sĩ Nguyên",
+        "category": "person"
+      },
+      {
+        "id": 1477076,
+        "title": "Trần Bửu Kiếm",
+        "category": "person"
+      },
+      {
+        "id": 12430654,
+        "title": "Nguyễn Công Trang",
+        "category": "person"
+      },
+      {
+        "id": 6298,
+        "title": "Nguyễn Văn Linh",
+        "category": "person"
+      }
+    ]
+  },
+  {
+    "community_id": "747",
+    "label": "Bão Chanchu (2006): Trần Đức Lương, Phan Văn Khải",
+    "size": 101,
+    "persons": 80,
+    "events": 21,
+    "person_ratio": 0.7920792079207921,
+    "sample_nodes": [
+      {
+        "id": 838,
+        "title": "Trần Đức Lương",
+        "category": "person"
+      },
+      {
+        "id": 1452,
+        "title": "Phan Văn Khải",
+        "category": "person"
+      },
+      {
+        "id": 46336,
+        "title": "Võ Văn Kiệt",
+        "category": "person"
+      },
+      {
+        "id": 24330,
+        "title": "Lê Khả Phiêu",
+        "category": "person"
+      },
+      {
+        "id": 32690,
+        "title": "Dương Thu Hương",
+        "category": "person"
+      },
+      {
+        "id": 41593,
+        "title": "Nguyễn Tấn Dũng",
+        "category": "person"
+      }
+    ]
+  },
+  {
+    "community_id": "13",
+    "label": "Cuộc di cư Việt Nam (1954): Tađêô Lê Hữu Từ, Phan Huỳnh Điểu",
+    "size": 90,
+    "persons": 83,
+    "events": 7,
+    "person_ratio": 0.9222222222222223,
+    "sample_nodes": [
+      {
+        "id": 283212,
+        "title": "Tađêô Lê Hữu Từ",
+        "category": "person"
+      },
+      {
+        "id": 16595,
+        "title": "Cuộc di cư Việt Nam (1954)",
+        "category": "event"
+      },
+      {
+        "id": 33745,
+        "title": "Phan Huỳnh Điểu",
+        "category": "person"
+      },
+      {
+        "id": 2361765,
+        "title": "Giuse Nguyễn Năng",
+        "category": "person"
+      },
+      {
+        "id": 32970,
+        "title": "Hoàng Hiệp",
+        "category": "person"
+      },
+      {
+        "id": 37572,
+        "title": "Hoàng Trọng",
+        "category": "person"
+      }
+    ]
+  },
+  {
+    "community_id": "6",
+    "label": "Vụ đánh bom Dinh Độc Lập 1962: Ngô Đình Diệm, Nguyễn Văn Thiệu",
+    "size": 78,
+    "persons": 55,
+    "events": 23,
+    "person_ratio": 0.7051282051282052,
+    "sample_nodes": [
+      {
+        "id": 990,
+        "title": "Ngô Đình Diệm",
+        "category": "person"
+      },
+      {
+        "id": 1387,
+        "title": "Nguyễn Văn Thiệu",
+        "category": "person"
+      },
+      {
+        "id": 2340,
+        "title": "Dương Văn Minh",
+        "category": "person"
+      },
+      {
+        "id": 16474,
+        "title": "Nguyễn Cao Kỳ",
+        "category": "person"
+      },
+      {
+        "id": 17932,
+        "title": "Nguyễn Khánh",
+        "category": "person"
+      },
+      {
+        "id": 17938,
+        "title": "Trần Văn Hương",
+        "category": "person"
+      }
+    ]
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "graph_statistics": {
+    "total_nodes": 4820,
+    "total_edges": 3029,
+    "person_nodes": 4467,
+    "event_nodes": 353
+  },
+  "small_world_metrics": {
+    "average_shortest_path_length": 0.6058522630020179,
+    "characteristic_path_length": 0.6058522630020179,
+    "clustering_coefficient": 0.0,
+    "path_statistics": {
+      "average_path_length": 0.6058522630020179,
+      "path_count": 701,
+      "connected_pairs": 701,
+      "disconnected_pairs": 9299,
+      "min_path_length": 0.1986073465281411,
+      "max_path_length": 1.5291518122613978,
+      "median_path_length": 0.5714814681863243
+    }
+  },
+  "small_world_property": {
+    "is_small_world": false,
+    "average_path_length": 0.6058522630020179,
+    "clustering_coefficient": 0.0,
+    "interpretation": "Small world property may not hold"
+  }
+}
